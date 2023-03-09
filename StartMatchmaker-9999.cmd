@@ -1,0 +1,1 @@
+"./Matchmaker/platform_scripts/cmd/run.bat" --LogToFile 0 --HttpPort 90 --MatchmakerPort 9999

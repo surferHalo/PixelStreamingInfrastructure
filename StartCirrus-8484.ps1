@@ -1,0 +1,1 @@
+& "./SignallingWebServer/platform_scripts/cmd/Start_CirrusServer.ps1" --HttpPort 84 --StreamerPort 8484 --UseMatchmaker 0 --MatchmakerPort 9999  --SFUPort 7474

@@ -1,0 +1,1 @@
+& "./SignallingWebServer/platform_scripts/cmd/Start_TURNServer.ps1"

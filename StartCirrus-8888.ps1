@@ -1,0 +1,2 @@
+& "./SignallingWebServer/platform_scripts/cmd/Start_CirrusServer.ps1" --HttpPort 88 --StreamerPort 8888 --UseMatchmaker 0 --MatchmakerPort 9999  --SFUPort 7878 --UseFrontend 1 --FrontendUrl "http://127.0.0.1:3000" --linkId "uuid" --procId "uuid"
+Pause

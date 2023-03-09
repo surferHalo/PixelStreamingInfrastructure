@@ -42,7 +42,7 @@ let rAF = window.mozRequestAnimationFrame ||
 let webRtcPlayerObj = null;
 let print_stats = false;
 let print_inputs = false;
-let connect_on_load = false;
+let connect_on_load = true;
 let ws;
 const WS_OPEN_STATE = 1;
 
@@ -697,20 +697,20 @@ function onFullscreenChange() {
 
 function parseURLParams() {
     let urlParams = new URLSearchParams(window.location.search);
-    inputOptions.controlScheme = (urlParams.has('hoveringMouse') ?  ControlSchemeType.HoveringMouse : ControlSchemeType.LockedMouse);
-    let schemeToggle = document.getElementById("control-scheme-text");
-    switch (inputOptions.controlScheme) {
-        case ControlSchemeType.HoveringMouse:
-            schemeToggle.innerHTML = "Control Scheme: Hovering Mouse";
-            break;
-        case ControlSchemeType.LockedMouse:
-            schemeToggle.innerHTML = "Control Scheme: Locked Mouse";
-            break;
-        default:
-            schemeToggle.innerHTML = "Control Scheme: Locked Mouse";
-            console.log(`ERROR: Unknown control scheme ${inputOptions.controlScheme}, defaulting to Locked Mouse`);
-            break;
-    }
+    // inputOptions.controlScheme = (urlParams.has('hoveringMouse') ?  ControlSchemeType.HoveringMouse : ControlSchemeType.LockedMouse);
+    // let schemeToggle = document.getElementById("control-scheme-text");
+    // switch (inputOptions.controlScheme) {
+    //     case ControlSchemeType.HoveringMouse:
+    //         schemeToggle.innerHTML = "Control Scheme: Hovering Mouse";
+    //         break;
+    //     case ControlSchemeType.LockedMouse:
+    //         schemeToggle.innerHTML = "Control Scheme: Locked Mouse";
+    //         break;
+    //     default:
+    //         schemeToggle.innerHTML = "Control Scheme: Locked Mouse";
+    //         console.log(`ERROR: Unknown control scheme ${inputOptions.controlScheme}, defaulting to Locked Mouse`);
+    //         break;
+    // }
 
     if(urlParams.has('noWatermark')) {
         let watermark = document.getElementById("unrealengine");
@@ -735,16 +735,16 @@ function setupHtmlEvents() {
         window.addEventListener("webkitgamepaddisconnected", gamepadDisconnectHandler);
     }
 
-    document.addEventListener('webkitfullscreenchange', onFullscreenChange, false);
-    document.addEventListener('mozfullscreenchange', onFullscreenChange, false);
-    document.addEventListener('fullscreenchange', onFullscreenChange, false);
-    document.addEventListener('MSFullscreenChange', onFullscreenChange, false);
+    // document.addEventListener('webkitfullscreenchange', onFullscreenChange, false);
+    // document.addEventListener('mozfullscreenchange', onFullscreenChange, false);
+    // document.addEventListener('fullscreenchange', onFullscreenChange, false);
+    // document.addEventListener('MSFullscreenChange', onFullscreenChange, false);
 
-    let settingsBtn = document.getElementById('settingsBtn');
-    settingsBtn.addEventListener('click', settingsClicked);
+    // let settingsBtn = document.getElementById('settingsBtn');
+    // settingsBtn.addEventListener('click', settingsClicked);
 
-    let statsBtn = document.getElementById('statsBtn');
-    statsBtn.addEventListener('click', statsClicked);
+    // let statsBtn = document.getElementById('statsBtn');
+    // statsBtn.addEventListener('click', statsClicked);
 
     let controlBtn = document.getElementById('control-tgl');
     controlBtn.addEventListener('change', toggleControlScheme);
@@ -1589,7 +1589,7 @@ const ControlSchemeType = {
 let inputOptions = {
     // The control scheme controls the behaviour of the mouse when it interacts
     // with the WebRTC player.
-    controlScheme: ControlSchemeType.LockedMouse,
+    controlScheme: ControlSchemeType.HoveringMouse,
 
     // Browser keys are those which are typically used by the browser UI. We
     // usually want to suppress these to allow, for example, UE to show shader

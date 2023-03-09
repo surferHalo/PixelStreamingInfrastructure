@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <!-- For iPhone X the following makes it use the entire screen space for the webpage https://webkit.org/blog/7929/designing-websites-for-iphone-x/ -->
+    <meta name="viewport" content="initial-scale=1, viewport-fit=cover">
+
+    <title>Document</title>
+    <script>
+        function requestFullScreen() {
+            var de = document.documentElement;
+            if (de.requestFullscreen) {
+                de.requestFullscreen();
+            } else if (de.mozRequestFullScreen) {
+                de.mozRequestFullScreen();
+            } else if (de.webkitRequestFullScreen) {
+                de.webkitRequestFullScreen();
+            }
+        }
+        function exitFullscreen() {
+            var de = document;
+            if (de.exitFullscreen) {
+                de.exitFullscreen();
+            } else if (de.mozCancelFullScreen) {
+                de.mozCancelFullScreen();
+            } else if (de.webkitCancelFullScreen) {
+                de.webkitCancelFullScreen();
+            }
+        }
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                requestFullScreen();
+            } else {
+                exitFullscreen();
+            }
+        }
+    </script>
+
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* html, */
+        /* body { */
+        /* overflow: hidden; */
+        /* width: 100%; */
+        /* height: 100%; */
+        /* } */
+
+        /* #mainWrap, */
+        iframe {
+            /* width: 100%; */
+            /* height: 100%; */
+            width: 100vmax;
+            height: 100vmin;
+            position: absolute;
+            /* transform-origin: 0 0; */
+            /* transform: translate3d(0, 0, 0); */
+        }
+
+        #controlPanel {
+            position: absolute;
+            z-index: 999;
+            top: 0;
+            /* left: 2%; */
+        }
+
+        .controlBtns {
+            display: flex;
+            justify-content: left;
+            align-items: flex-start;
+        }
+
+        #fullscreenIcon {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        @media screen and (orientation:portrait) {
+            iframe {
+                /* width: 100vmax; */
+                /* height: 100vmin; */
+                transform-origin: 0 0;
+                transform: rotateZ(90deg) translateY(-100vw);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="controlPanel">
+        <div class="controlBtns">
+            <input type="image" id="fullscreenIcon" onclick="toggleFullScreen()" src="../images/icon_maxmize.png"
+                alt="fullscreen" />
+        </div>
+    </div>
+    <div id="mainWrap">
+        <iframe id="iframePlayer" name="PixelStreamingPlayer" src="/player.html" importance="high" loading="eager"></iframe>
+    </div>
+</body>
+
+<script>
+    // (function () {
+    //     function resize() {
+    //         var body = document.getElementsByTagName('body')[0];
+    //         var html = document.getElementsByTagName('html')[0];
+    //         var width = html.clientWidth;
+    //         var height = html.clientHeight;
+    //         var max = width > height ? width : height;
+    //         var min = width > height ? height : width;
+    //         body.style.width = max + "px";
+    //         body.style.height = min + "px";
+
+    //         // var ifp = document.getElementById("iframePlayer");
+    //         // ifp.src = ifp.src;
+    //         // if (width < height) {
+    //         //     body.style.transformOrigin = "0 0";
+    //         //     body.style.transform = "rotateZ(90deg) translateY(-100%)";
+    //         // } else {
+    //         //     body.style.transformOrigin = null;
+    //         //     body.style.transform = null;
+    //         // }
+    //     }
+    //     resize();
+    //     window.addEventListener("resize", resize)
+    // })();
+
+    // (function () {
+    //     window.addEventListener("resize", resizeThrottler, false);
+    //     var resizeTimeout;
+    //     function resizeThrottler() {
+    //         // ignore resize events as long as an actualResizeHandler execution is in the queue
+    //         if (!resizeTimeout) {
+    //             resizeTimeout = setTimeout(function () {
+    //                 resizeTimeout = null;
+    //                 actualResizeHandler();
+    //                 // The actualResizeHandler will execute at a rate of 15fps
+    //             }, 66);
+    //         }
+    //     }
+    //     function actualResizeHandler() {
+    //         var body = document.getElementsByTagName('body')[0];
+    //         var html = document.getElementsByTagName('html')[0];
+    //         var width = html.clientWidth;
+    //         var height = html.clientHeight;
+    //         var max = width > height ? width : height;
+    //         var min = width > height ? height : width;
+    //         body.style.width = max + "px";
+    //         body.style.height = min + "px";            
+    //         // body.style.width = "100vw";
+    //         // body.style.height = "100vh";
+    //         // alert(body.style.width + " x " +body.style.height);
+    //     }
+    //     actualResizeHandler();
+    // }());
+
+    let fullscreenIcon = document.getElementById("fullscreenIcon");
+
+    function fullscreenChanged(e) {
+        if (document.fullscreenElement) {
+            fullscreenIcon.style.display = "none";
+        } else {
+            fullscreenIcon.style.display = "block";
+        }
+    }
+    document.addEventListener("fullscreenchange", fullscreenChanged);
+
+</script>
+
+</html>

@@ -75,14 +75,17 @@ var net = require('net');
 
 var FRONTEND_WEBSERVER = 'https://localhost';
 if (config.UseFrontend) {
-	var httpPort = 3000;
-	var httpsPort = 8000;
+	// var httpPort = 3000;
+	// var httpsPort = 8000;
+
+	var httpPort = config.HttpPort;
+	var httpsPort = config.HttpsPort;
 
 	//Required for self signed certs otherwise just get an error back when sending request to frontend see https://stackoverflow.com/a/35633993
 	process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
 
-	const httpsClient = require('./modules/httpsClient.js');
-	var webRequest = new httpsClient();
+	const httpClient = require('./modules/httpClient.js');
+	var webRequest = new httpClient();
 } else {
 	var httpPort = config.HttpPort;
 	var httpsPort = config.HttpsPort;
@@ -341,7 +344,7 @@ streamerServer.on('connection', function (ws, req) {
 
 	console.logColor(logging.Green, `Streamer connected: ${req.connection.remoteAddress}`);
 	sendStreamerConnectedToMatchmaker();
-
+	sendStreamerConnectedToFrontend();
 	ws.on('message', (msgRaw) => {
 
 		var msg;
@@ -394,6 +397,7 @@ streamerServer.on('connection', function (ws, req) {
 
 	function onStreamerDisconnected() {
 		sendStreamerDisconnectedToMatchmaker();
+		sendStreamerDisconnectedToFrontend();
 		disconnectAllPlayers();
 		if (sfuIsConnected()) {
 			const msg = { type: "streamerDisconnected" };
@@ -732,7 +736,7 @@ function sendGameSessionData() {
 	//If we are not using the frontend web server don't try and make requests to it
 	if (!config.UseFrontend)
 		return;
-	webRequest.get(`${FRONTEND_WEBSERVER}/server/requestSessionId`,
+	webRequest.get(`${FRONTEND_WEBSERVER}/server/requestSessionId?linkId=${querystring.escape(config.linkId)}&procId=${querystring.escape(config.procId)}`,
 		function (response, body) {
 			if (response.statusCode === 200) {
 				gameSessionId = body;
@@ -820,7 +824,7 @@ function sendPlayerConnectedToFrontend() {
 	if (!config.UseFrontend)
 		return;
 	try {
-		webRequest.get(`${FRONTEND_WEBSERVER}/server/clientConnected?gameSessionId=${gameSessionId}&appName=${querystring.escape(clientConfig.AppName)}`,
+		webRequest.get(`${FRONTEND_WEBSERVER}/server/clientConnected?linkId=${querystring.escape(config.linkId)}&procId=${querystring.escape(config.procId)}&gameSessionId=${gameSessionId}&appName=${querystring.escape(clientConfig.AppName)}`,
 			function (response, body) {
 				if (response.statusCode === 200) {
 					console.log('clientConnected acknowledged by Frontend');
@@ -850,7 +854,7 @@ function sendPlayerDisconnectedToFrontend() {
 	if (!config.UseFrontend)
 		return;
 	try {
-		webRequest.get(`${FRONTEND_WEBSERVER}/server/clientDisconnected?gameSessionId=${gameSessionId}&appName=${querystring.escape(clientConfig.AppName)}`,
+		webRequest.get(`${FRONTEND_WEBSERVER}/server/clientDisconnected?linkId=${querystring.escape(config.linkId)}&procId=${querystring.escape(config.procId)}&gameSessionId=${gameSessionId}&appName=${querystring.escape(clientConfig.AppName)}`,
 			function (response, body) {
 				if (response.statusCode === 200) {
 					console.log('clientDisconnected acknowledged by Frontend');
@@ -932,5 +936,67 @@ function sendPlayerDisconnectedToMatchmaker() {
 		matchmaker.write(JSON.stringify(message));
 	} catch (err) {
 		console.logColor(logging.Red, `ERROR sending clientDisconnected: ${err.message}`);
+	}
+}
+
+
+function sendStreamerConnectedToFrontend() {
+	//If we are not using the frontend web server don't try and make requests to it
+	if (!config.UseFrontend)
+		return;
+	try {
+		webRequest.get(`${FRONTEND_WEBSERVER}/server/streamerConnected?linkId=${querystring.escape(config.linkId)}&procId=${querystring.escape(config.procId)}&gameSessionId=${gameSessionId}&appName=${querystring.escape(clientConfig.AppName)}`,
+			function (response, body) {
+				if (response.statusCode === 200) {
+					console.log('streamerConnected acknowledged by Frontend');
+				} else {
+					console.error('Status code: ' + response.statusCode);
+					console.error(body);
+				}
+			},
+			function (err) {
+				//Repeatedly try in cases where the connection timed out or never connected
+				if (err.code === "ECONNRESET") {
+					//timeout
+					sendStreamerConnectedToFrontend();
+				} else if (err.code === 'ECONNREFUSED') {
+					console.error('Frontend server not running, unable to setup game session');
+				} else {
+					console.error(err);
+				}
+			});
+	} catch(err) {
+		console.logColor(logging.Red, `ERROR::: sendStreamerConnectedToFrontend error: ${err.message}`);
+	}
+}
+
+function sendStreamerDisconnectedToFrontend() {
+	//If we are not using the frontend web server don't try and make requests to it
+	if (!config.UseFrontend)
+		return;
+	try {
+		webRequest.get(`${FRONTEND_WEBSERVER}/server/streamerDisconnected?linkId=${querystring.escape(config.linkId)}&procId=${querystring.escape(config.procId)}&gameSessionId=${gameSessionId}&appName=${querystring.escape(clientConfig.AppName)}`,
+			function (response, body) {
+				if (response.statusCode === 200) {
+					console.log('streamerDisconnected acknowledged by Frontend');
+				}
+				else {
+					console.error('Status code: ' + response.statusCode);
+					console.error(body);
+				}
+			},
+			function (err) {
+				//Repeatedly try in cases where the connection timed out or never connected
+				if (err.code === "ECONNRESET") {
+					//timeout
+					sendStreamerDisconnectedToFrontend();
+				} else if (err.code === 'ECONNREFUSED') {
+					console.error('Frontend server not running, unable to setup game session');
+				} else {
+					console.error(err);
+				}
+			});
+	} catch(err) {
+		console.logColor(logging.Red, `ERROR::: streamerDisconnectedToFrontend error: ${err.message}`);
 	}
 }
